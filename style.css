@@ -1,0 +1,596 @@
+:root {
+  --primary: #10b981;
+  --secondary: #34d399;
+  --bg: #1e3a2b; /* Verde más claro y vibrante */
+  --glass-bg: rgba(45, 90, 68, 0.6); /* Cristal verde medio */
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --text-main: #ffffff;
+  --text-muted: #d1fae5;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Background Blobs for Modern Aesthetic */
+.background-blobs {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  filter: blur(100px);
+  opacity: 0.5;
+  border-radius: 50%;
+  animation: float 20s infinite ease-in-out alternate;
+}
+
+.blob-1 {
+  background: #065f46; /* Deeper emerald bubble */
+  width: 40vw; height: 40vw;
+  top: -10%; left: -10%;
+}
+
+.blob-2 {
+  background: #064e3b;
+  width: 35vw; height: 35vw;
+  bottom: -10%; right: -10%;
+  animation-delay: -10s;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(10%, 15%) scale(1.1); }
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  position: relative;
+}
+
+.top-logo {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  max-width: 120px;
+  height: auto;
+  z-index: 10;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+  transition: transform 0.3s ease;
+}
+
+.top-logo:hover {
+  transform: scale(1.05);
+}
+
+/* Glassmorphism Classes */
+.glass-header, .table-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.glass-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.marquee-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.marquee-text {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #10b981, #d1fae5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding-left: 100%;
+  animation: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-110%); }
+}
+
+.glass-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(to right, #10b981, #d1fae5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glass-header p {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+.search-box {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  font-size: 1.1rem;
+  background: rgba(6, 28, 20, 0.6);
+  border: 1px solid var(--glass-border);
+  color: white;
+  border-radius: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.search-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+/* Tabs de Candidatos */
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.list-tab {
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.list-tab:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.list-tab:active {
+  transform: translateY(0);
+}
+
+.tab-verde {
+  background-color: #10b981; /* Verde esmeralda */
+}
+
+.tab-azul {
+  background-color: #3b82f6; /* Azul brillante */
+}
+
+.tab-celeste {
+  background-color: #06b6d4; /* Celeste cyan */
+}
+
+.tab-clear {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+}
+.tab-clear:hover {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Table Design */
+.table-glass {
+  overflow-x: auto;
+  padding: 1.5rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th, td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+th {
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Loader */
+.loader {
+  border: 3px solid rgba(16, 185, 129, 0.1);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+.hidden { display: none !important; }
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Init status */
+.search-box input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Avatar Profiles */
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              box-shadow 0.35s ease;
+  vertical-align: middle;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+
+.avatar:hover {
+  animation: pulseZoom 1s ease forwards;
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4), 0 0 0 3px rgba(99, 102, 241, 0.6);
+  z-index: 100;
+}
+
+@keyframes pulseZoom {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(3.5); }
+  70%  { transform: scale(3.5); }
+  100% { transform: scale(1); }
+}
+
+.avatar-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--glass-bg), rgba(255, 255, 255, 0.1));
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+}
+
+.avatar-placeholder::after {
+  content: '👤';
+  font-size: 1.2rem;
+}
+
+/* Modal de Imagen */
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(6, 28, 20, 0.85); /* Dark emerald cover */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex !important; /* Overriden by hidden when not active */
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.modal-content {
+  max-width: 90%;
+  max-height: 85vh;
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--glass-border);
+  object-fit: contain;
+  transform: scale(1);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal.hidden .modal-content {
+  transform: scale(0.8);
+}
+
+.close-modal {
+  position: absolute;
+  top: 30px;
+  right: 40px;
+  color: #fff;
+  font-size: 3rem;
+  font-weight: 300;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  z-index: 1001;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.close-modal:hover {
+  color: var(--primary);
+}
+
+/* Vote Card */
+.vote-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  transform: scale(1);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal.hidden .vote-card {
+  transform: scale(0.8);
+}
+
+.vote-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(to right, #a855f7, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.vote-subtitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.vote-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.vote-btn {
+  padding: 1rem 1.5rem;
+  border-radius: 1rem;
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.vote-btn:hover {
+  transform: scale(1.05);
+  filter: brightness(1.15);
+}
+
+.vote-btn:active {
+  transform: scale(0.98);
+}
+
+.vote-verde { background: linear-gradient(135deg, #10b981, #059669); }
+.vote-azul { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.vote-celeste { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+
+.vote-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.dot-verde { 
+  background-color: #10b981; 
+  animation: pulse-verde 2s infinite;
+}
+.dot-azul { 
+  background-color: #3b82f6; 
+  animation: pulse-azul 2s infinite;
+}
+.dot-celeste { 
+  background-color: #06b6d4; 
+  animation: pulse-celeste 2s infinite;
+}
+
+@keyframes pulse-verde {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+@keyframes pulse-azul {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+@keyframes pulse-celeste {
+  0% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+}
+
+.vote-confirmation {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 0.8rem;
+  color: #10b981;
+  font-weight: 600;
+  font-size: 1.1rem;
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Clickable Rows */
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background-color: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* Results Panel */
+.results-panel {
+  text-align: center;
+  padding: 1.2rem 1.5rem; /* Más compacto */
+  background-image: url('photos/Boca_Urna.png');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+
+.results-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(6, 28, 20, 0.4); /* Capa más clara para que se vea mejor la foto */
+  z-index: 1;
+}
+
+.results-panel > * {
+  position: relative;
+  z-index: 2;
+}
+
+.credits {
+  position: absolute;
+  bottom: 5px;
+  right: 8px;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  z-index: 3;
+  letter-spacing: 1px;
+}
+
+.results-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.result-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.result-label {
+  min-width: 130px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.bar-container {
+  flex: 1;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+
+.bar {
+  height: 100%;
+  border-radius: 0.5rem;
+  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 0;
+}
+
+.bar-verde { background: linear-gradient(90deg, #10b981, #34d399); }
+.bar-azul { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.bar-celeste { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+
+.result-count {
+  min-width: 80px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.total-votos {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}

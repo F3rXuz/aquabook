@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscador de Afiliados Web</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Load sql.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <!-- Load the local database directly in Base64 -->
+  <script src="dbData.js"></script>
+  <!-- Base de datos estática de los Candidatos desde Excel -->
+  <script src="candidatosData.js"></script>
+  <!-- Supabase Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+  <div class="background-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <div class="container">
+    <img src="photos/logo_agua.png" class="top-logo" alt="Logo Agua" onerror="this.style.display='none'">
+    <header class="glass-header">
+      <div class="marquee-container">
+        <h1 class="marquee-text">Buscador de Afiliados - Sindicato Obras Sanitarias de Jujuy</h1>
+      </div>
+      <p>Busca por Apellido, Nombre o Legajo y VOTA...</p>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Ej: Perez, Juan, o 1234...">
+        <div id="loader" class="loader hidden" style="position: absolute; right: 20px; top: 1.2rem;"></div>
+      </div>
+      <div class="tabs-container">
+        <!-- Verde, Azul, Celeste -->
+        <button class="list-tab tab-verde" onclick="filtrarCandidatos('Verde')">Lista Verde</button>
+        <button class="list-tab tab-azul" onclick="filtrarCandidatos('Azul')">Lista Azul</button>
+        <button class="list-tab tab-celeste" onclick="filtrarCandidatos('Celeste y Blanca')">Lista Celeste</button>
+        <button class="list-tab tab-clear" onclick="limpiarCandidatos()">Quitar Filtro</button>
+      </div>
+    </header>
+
+    <main class="results-container">
+      <div class="table-glass">
+        <table>
+          <thead>
+            <tr>
+
+              <th>Foto</th>
+              <th>Legajo</th>
+              <th>Apellidos y Nombres</th>
+              <th>Lugar</th>
+              <th id="lastHeader">Sector</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody">
+            <tr class="placeholder-row">
+              <td colspan="4" class="text-center">Escribe arriba para comenzar la búsqueda...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+
+  <!-- Modal de Imagen -->
+  <div id="imageModal" class="modal hidden">
+    <span class="close-modal" id="closeImageModal">&times;</span>
+    <img class="modal-content" id="imgFull">
+  </div>
+
+  <!-- Modal de Votación Boca de Urna -->
+  <div id="voteModal" class="modal hidden">
+    <div class="vote-card">
+      <span class="close-modal" id="closeVoteModal">&times;</span>
+      <h2 class="vote-title">🗳️ Boca de Urna</h2>
+      <p class="vote-subtitle" id="voteAffiliateName"></p>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">¿Por cuál lista votó?</p>
+      <div class="vote-buttons">
+        <button class="vote-btn vote-verde" onclick="registrarVoto('Verde')">
+          <span class="vote-dot dot-verde"></span> Lista Verde
+        </button>
+        <button class="vote-btn vote-azul" onclick="registrarVoto('Azul')">
+          <span class="vote-dot dot-azul"></span> Lista Azul
+        </button>
+        <button class="vote-btn vote-celeste" onclick="registrarVoto('Celeste y Blanca')">
+          <span class="vote-dot dot-celeste"></span> Lista Celeste
+        </button>
+      </div>
+      <div id="voteConfirmation" class="vote-confirmation hidden">
+        ✅ ¡Voto registrado!
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel de Resultados Provisorios -->
+  <div class="container" style="padding-top: 0; margin-top: -3rem;">
+    <div class="results-panel glass-header" style="margin-top: 0;">
+      <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">📊 Resultados Provisorios - Boca de Urna</h2>
+      <div class="results-bars" id="resultsBars">
+        <div class="result-row">
+          <span class="result-label"><span class="vote-dot dot-verde"></span> Lista Verde</span>
+          <div class="bar-container">
+            <div class="bar bar-verde" id="barVerde" style="width: 0%"></div>
+          </div>
+          <span class="result-count" id="countVerde">0 (0%)</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label"><span class="vote-dot dot-azul"></span> Lista Azul</span>
+          <div class="bar-container">
+            <div class="bar bar-azul" id="barAzul" style="width: 0%"></div>
+          </div>
+          <span class="result-count" id="countAzul">0 (0%)</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label"><span class="vote-dot dot-celeste"></span> Lista Celeste</span>
+          <div class="bar-container">
+            <div class="bar bar-celeste" id="barCeleste" style="width: 0%"></div>
+          </div>
+          <span class="result-count" id="countCeleste">0 (0%)</span>
+        </div>
+      </div>
+      <p class="total-votos" id="totalVotos">Total de votos: 0</p>
+      <span class="credits">©F3rXuz</span>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
