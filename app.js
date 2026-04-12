@@ -141,7 +141,10 @@ async function cargarPublicaciones() {
     postsList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">⏳ Cargando muro...</p>';
     
     try {
-        const { data: posts, error: postError } = await _supabase.from('publicaciones').select('*').order('created_at', { ascending: false });
+        // Ordenamos por last_activity para que los comentados suban
+        const { data: posts, error: postError } = await _supabase.from('publicaciones')
+            .select('*')
+            .order('last_activity', { ascending: false });
         if (postError) throw postError;
 
         const { data: allComments, error: commentError } = await _supabase.from('comentarios').select('*').order('created_at', { ascending: true });
@@ -161,9 +164,11 @@ async function cargarPublicaciones() {
             const postComments = allComments ? allComments.filter(c => c.post_id === post.id) : [];
             const commentsHtml = postComments.map(c => `
                 <div class="comment-item">
-                    <span class="comment-user">${c.nombre}</span>
+                    <div class="comment-header">
+                        <span class="comment-user">${c.nombre}</span>
+                        <span class="comment-date">${new Date(c.created_at).toLocaleDateString('es-AR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'})}</span>
+                    </div>
                     <div class="comment-text">${c.mensaje}</div>
-                    <span class="comment-date">${new Date(c.created_at).toLocaleDateString('es-AR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'})}</span>
                 </div>
             `).join('');
 
@@ -196,7 +201,8 @@ async function cargarPublicaciones() {
                         ${commentsHtml}
                     </div>
                     <div class="comment-form">
-                        <input type="text" id="comment-input-${post.id}" class="comment-input" placeholder="Comentar...">
+                        <input type="text" id="comment-input-${post.id}" class="comment-input" placeholder="Comentar..." 
+                               onkeydown="if(event.key === 'Enter') enviarComentario('${post.id}')">
                         <button class="comment-btn" onclick="enviarComentario('${post.id}')">Enviar</button>
                     </div>
                 </div>
@@ -220,8 +226,15 @@ async function enviarComentario(postId) {
     btn.disabled = true;
 
     try {
-        const { error } = await _supabase.from('comentarios').insert([{ post_id: postId, nombre, legajo, mensaje }]);
-        if (error) throw error;
+        // 1. Insertar el comentario
+        const { error: commentError } = await _supabase.from('comentarios').insert([{ post_id: postId, nombre, legajo, mensaje }]);
+        if (commentError) throw commentError;
+
+        // 2. Actualizar la última actividad del post para que suba arriba
+        await _supabase.from('publicaciones')
+            .update({ last_activity: new Date().toISOString() })
+            .eq('id', postId);
+
         input.value = '';
         cargarPublicaciones();
     } catch (err) {
@@ -231,6 +244,7 @@ async function enviarComentario(postId) {
         btn.disabled = false;
     }
 }
+
 
 async function reaccionar(id, campo, valorActual) {
     const reactionKey = `reacted_${id}_${campo}`;
