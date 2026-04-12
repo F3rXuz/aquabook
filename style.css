@@ -433,3 +433,89 @@ body {
   margin-top: 10px;
   border-radius: 5px;
 }
+/* --- COMENTARIOS --- */
+.comments-section {
+  padding: 1rem 1.2rem;
+  background: hsla(222, 47%, 5%, 0.3);
+  border-top: 1px solid var(--glass-border);
+}
+
+.comment-item {
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  background: hsla(0, 0%, 100%, 0.05);
+  border-radius: 0.8rem;
+  border: 1px solid hsla(0, 0%, 100%, 0.05);
+}
+
+.comment-user {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--secondary);
+  margin-bottom: 0.2rem;
+  display: block;
+}
+
+.comment-text {
+  font-size: 0.9rem;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+.comment-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.4rem;
+  display: block;
+}
+
+.comment-form {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.comment-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  padding: 0.5rem 1rem;
+  color: white;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.comment-input:focus {
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.comment-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 1.5rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.comment-btn:hover {
+  filter: brightness(1.2);
+}
+
+.toggle-comments-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
+.toggle-comments-btn:hover {
+  color: var(--text-main);
+}

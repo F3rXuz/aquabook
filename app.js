@@ -141,20 +141,32 @@ async function cargarPublicaciones() {
     postsList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">⏳ Cargando muro...</p>';
     
     try {
-        const { data, error } = await _supabase.from('publicaciones').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
+        const { data: posts, error: postError } = await _supabase.from('publicaciones').select('*').order('created_at', { ascending: false });
+        if (postError) throw postError;
+
+        const { data: allComments, error: commentError } = await _supabase.from('comentarios').select('*').order('created_at', { ascending: true });
+        if (commentError) throw commentError;
 
         postsList.innerHTML = '';
-        if (!data || data.length === 0) {
+        if (!posts || posts.length === 0) {
             postsList.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">📭 El muro está vacío. ¡Escribe algo!</p>';
             return;
         }
 
-        data.forEach(post => {
+        posts.forEach(post => {
             const dateObj = new Date(post.created_at);
             const date = dateObj.toLocaleDateString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
             const currentLegajo = sessionStorage.getItem('userLegajo');
             
+            const postComments = allComments ? allComments.filter(c => c.post_id === post.id) : [];
+            const commentsHtml = postComments.map(c => `
+                <div class="comment-item">
+                    <span class="comment-user">${c.nombre}</span>
+                    <div class="comment-text">${c.mensaje}</div>
+                    <span class="comment-date">${new Date(c.created_at).toLocaleDateString('es-AR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'})}</span>
+                </div>
+            `).join('');
+
             const postHtml = `
             <div class="post-item">
                 <div class="post-header">
@@ -178,6 +190,16 @@ async function cargarPublicaciones() {
                     <button class="delete-btn" onclick="borrarPost('${post.id}')">🗑️ Borrar</button>
                 ` : ''}
                 </div>
+
+                <div class="comments-section">
+                    <div id="comments-list-${post.id}">
+                        ${commentsHtml}
+                    </div>
+                    <div class="comment-form">
+                        <input type="text" id="comment-input-${post.id}" class="comment-input" placeholder="Comentar...">
+                        <button class="comment-btn" onclick="enviarComentario('${post.id}')">Enviar</button>
+                    </div>
+                </div>
             </div>
             `;
             postsList.insertAdjacentHTML('beforeend', postHtml);
@@ -187,12 +209,32 @@ async function cargarPublicaciones() {
     }
 }
 
+async function enviarComentario(postId) {
+    const input = document.getElementById(`comment-input-${postId}`);
+    const mensaje = input.value.trim();
+    if (!mensaje) return;
+
+    const nombre = sessionStorage.getItem('userName') || "Usuario";
+    const legajo = sessionStorage.getItem('userLegajo') || "0";
+    const btn = input.nextElementSibling;
+    btn.disabled = true;
+
+    try {
+        const { error } = await _supabase.from('comentarios').insert([{ post_id: postId, nombre, legajo, mensaje }]);
+        if (error) throw error;
+        input.value = '';
+        cargarPublicaciones();
+    } catch (err) {
+        console.error(err);
+        alert('Error al comentar: ' + err.message);
+    } finally {
+        btn.disabled = false;
+    }
+}
+
 async function reaccionar(id, campo, valorActual) {
     const reactionKey = `reacted_${id}_${campo}`;
-    if (sessionStorage.getItem(reactionKey)) {
-        console.log("Ya has reaccionado a esta publicación.");
-        return;
-    }
+    if (sessionStorage.getItem(reactionKey)) return;
 
     try {
         const updates = {};
@@ -210,6 +252,7 @@ async function borrarPost(id) {
         cargarPublicaciones();
     } catch (e) { console.error(e); }
 }
+
 
 function redimensionarImagen(base64Str, maxWidth = 1024) {
     return new Promise((resolve) => {
