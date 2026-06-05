@@ -318,6 +318,10 @@ if (postImageInput) {
     };
 }
 
+// --- CONFIGURACIÓN CLOUDINARY ---
+const CLOUDINARY_CLOUD_NAME = "TU_CLOUD_NAME"; // Reemplaza con tu Cloud Name de Cloudinary
+const CLOUDINARY_UPLOAD_PRESET = "TU_UPLOAD_PRESET"; // Reemplaza con tu Upload Preset (Unsigned) de Cloudinary
+
 if (postForm) {
     postForm.onsubmit = async (e) => {
         e.preventDefault();
@@ -347,11 +351,46 @@ if (postForm) {
             return;
         }
 
+        let imagenUrlFinal = null;
+
+        // Si hay una foto seleccionada, la subimos primero a Cloudinary
+        if (imagenBase64) {
+            btn.textContent = 'Subiendo foto...';
+            try {
+                const formData = new FormData();
+                formData.append('file', imagenBase64);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+                const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!cloudRes.ok) {
+                    throw new Error('Error en la respuesta del servidor de imágenes');
+                }
+
+                const cloudData = await cloudRes.json();
+                imagenUrlFinal = cloudData.secure_url; // Esta es la URL corta de Cloudinary
+            } catch (err) {
+                console.error("Cloudinary error:", err);
+                alert('No se pudo subir la foto a Cloudinary. ¿Configuraste correctamente tu Cloud Name y Upload Preset?');
+                btn.disabled = false;
+                btn.textContent = 'Publicar';
+                return;
+            }
+        }
+
         try {
             const response = await fetch(`${API_URL}/posts`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombre, legajo, mensaje: txt.value.trim() || "", imagen_url: imagenBase64 })
+                body: JSON.stringify({ 
+                    nombre, 
+                    legajo, 
+                    mensaje: txt.value.trim() || "", 
+                    imagen_url: imagenUrlFinal // Guardamos la URL de Cloudinary en la base de datos
+                })
             });
             if (!response.ok) {
                 const errData = await response.json();
@@ -371,6 +410,7 @@ if (postForm) {
         }
     };
 }
+
 
 // --- ACTUALIZACIÓN DE CONTENIDO (POLLING) ---
 // Como Neon/Serverless no mantiene WebSockets directos en frontend de forma nativa,
