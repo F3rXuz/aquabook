@@ -319,8 +319,8 @@ if (postImageInput) {
 }
 
 // --- CONFIGURACIÓN CLOUDINARY ---
-const CLOUDINARY_CLOUD_NAME = "TU_CLOUD_NAME"; // Reemplaza con tu Cloud Name de Cloudinary
-const CLOUDINARY_UPLOAD_PRESET = "TU_UPLOAD_PRESET"; // Reemplaza con tu Upload Preset (Unsigned) de Cloudinary
+const CLOUDINARY_CLOUD_NAME = "dfrukldlu"; // Reemplaza con tu Cloud Name de Cloudinary
+const CLOUDINARY_UPLOAD_PRESET = "i2n7qmyh"; // Reemplaza con tu Upload Preset (Unsigned) de Cloudinary
 
 if (postForm) {
     postForm.onsubmit = async (e) => {
