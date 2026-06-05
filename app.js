@@ -4,7 +4,7 @@ const SUPABASE_KEY = "sb_publishable_q7SZ54CZAxK8naqTf8gWJg_UViEPakb";
 const _supabase = supabase.createClient(SUBAPASE_URL, SUPABASE_KEY);
 
 // --- GESTIÓN DE SESIÓN ---
-window.logout = function() {
+window.logout = function () {
     sessionStorage.clear();
     location.reload();
 };
@@ -19,78 +19,78 @@ if (sessionStorage.getItem('userRegistered')) {
     loginOverlay.classList.add('hidden');
     mainContent.classList.remove('content-hidden');
     document.querySelectorAll('.container').forEach(c => c.classList.remove('content-hidden'));
-    
+
     if (userStatusBar) userStatusBar.classList.remove('content-hidden');
     if (loggedUserName) loggedUserName.textContent = sessionStorage.getItem('userName') || "Usuario";
-    
-    setTimeout(cargarPublicaciones, 500); 
+
+    setTimeout(cargarPublicaciones, 500);
 }
 
 function hideLogin(name, legajo) {
     if (name) sessionStorage.setItem('userName', name);
     if (legajo) sessionStorage.setItem('userLegajo', legajo);
     sessionStorage.setItem('userRegistered', 'true');
-    
+
     loginOverlay.classList.add('hidden');
     mainContent.classList.remove('content-hidden');
     document.querySelectorAll('.container').forEach(c => c.classList.remove('content-hidden'));
-    
+
     if (userStatusBar) userStatusBar.classList.remove('content-hidden');
     if (loggedUserName) loggedUserName.textContent = sessionStorage.getItem('userName') || "Usuario";
-    
+
     cargarPublicaciones();
 }
 
 // --- LOGIN Y REGISTRO ---
-window.switchLoginView = function(view) {
-  const loginView = document.getElementById('loginView');
-  const registerView = document.getElementById('registerView');
-  if (view === 'register') {
-    loginView.classList.add('hidden');
-    registerView.classList.remove('hidden');
-  } else {
-    loginView.classList.remove('hidden');
-    registerView.classList.add('hidden');
-  }
+window.switchLoginView = function (view) {
+    const loginView = document.getElementById('loginView');
+    const registerView = document.getElementById('registerView');
+    if (view === 'register') {
+        loginView.classList.add('hidden');
+        registerView.classList.remove('hidden');
+    } else {
+        loginView.classList.remove('hidden');
+        registerView.classList.add('hidden');
+    }
 };
 
 const btnIngresar = document.getElementById('btnIngresar');
 if (btnIngresar) {
-  btnIngresar.onclick = async () => {
-    const legajo = document.getElementById('logLegajo').value.trim();
-    const password = document.getElementById('logPassword').value.trim();
+    btnIngresar.onclick = async () => {
+        const legajo = document.getElementById('logLegajo').value.trim();
+        const password = document.getElementById('logPassword').value.trim();
 
-    if (!legajo || !password) {
-      alert('Por favor, ingresá Legajo y Contraseña.');
-      return;
-    }
+        if (!legajo || !password) {
+            alert('Por favor, ingresá Legajo y Contraseña.');
+            return;
+        }
 
-    btnIngresar.disabled = true;
-    btnIngresar.textContent = 'Verificando...';
+        btnIngresar.disabled = true;
+        btnIngresar.textContent = 'Verificando...';
 
-    try {
-      const { data: user, error: fetchError } = await _supabase
-        .from('afiliados')
-        .select('*')
-        .eq('legajo', legajo)
-        .maybeSingle();
+        try {
+            const { data: user, error: fetchError } = await _supabase
+                .from('afiliados')
+                .select('*')
+                .eq('legajo', legajo)
+                .maybeSingle();
 
-      if (fetchError) throw fetchError;
-      if (!user) {
-        alert('❌ Error: El Legajo "' + legajo + '" no está registrado.\n\nPor favor, hacé clic en "Crear Cuenta" primero.');
-      } else if (user.password !== password) {
-        alert('❌ Error: La contraseña es incorrecta.');
-      } else {
-        hideLogin(user.nombre, user.legajo);
-      }
-    } catch (err) {
-      console.error("Error en login:", err);
-      alert('Error de conexión: ' + err.message);
-    } finally {
-      btnIngresar.disabled = false;
-      btnIngresar.textContent = 'Ingresar';
-    }
-  };
+            if (fetchError) throw fetchError;
+            if (!user) {
+                alert('❌ Error: El Legajo "' + legajo + '" no está registrado.\n\nPor favor, hacé clic en "Crear Cuenta" primero.');
+            } else if (user.password !== password) {
+                alert('❌ Error: La contraseña es incorrecta.');
+            } else {
+                hideLogin(user.nombre, user.legajo);
+            }
+        } catch (err) {
+            console.error("Error en login:", err);
+            alert('Error de conexión: ' + err.message);
+        } finally {
+            btnIngresar.disabled = false;
+            btnIngresar.textContent = 'Ingresar';
+        }
+    };
 }
 
 const registerForm = document.getElementById('registerForm');
@@ -139,7 +139,7 @@ const imagePreview = document.getElementById('imagePreview');
 async function cargarPublicaciones() {
     if (!postsList) return;
     postsList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">⏳ Cargando muro...</p>';
-    
+
     try {
         // Ordenamos por last_activity para que los comentados suban
         const { data: posts, error: postError } = await _supabase.from('publicaciones')
@@ -160,13 +160,13 @@ async function cargarPublicaciones() {
             const dateObj = new Date(post.created_at);
             const date = dateObj.toLocaleDateString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
             const currentLegajo = sessionStorage.getItem('userLegajo');
-            
+
             const postComments = allComments ? allComments.filter(c => c.post_id === post.id) : [];
             const commentsHtml = postComments.map(c => `
                 <div class="comment-item">
                     <div class="comment-header">
                         <span class="comment-user">${c.nombre}</span>
-                        <span class="comment-date">${new Date(c.created_at).toLocaleDateString('es-AR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'})}</span>
+                        <span class="comment-date">${new Date(c.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                     <div class="comment-text">${c.mensaje}</div>
                 </div>
@@ -314,7 +314,7 @@ if (postForm) {
         btn.textContent = 'Enviando...';
         let imagenBase64 = null;
         const file = postImageInput.files[0];
-        
+
         if (file) {
             const rawBase64 = await new Promise((resolve) => {
                 const reader = new FileReader();
@@ -347,3 +347,32 @@ if (postForm) {
         }
     };
 }
+
+// --- ESCUCHA EN TIEMPO REAL (SUPABASE REALTIME) ---
+// Suscribirse a cambios en la tabla 'publicaciones'
+_supabase
+    .channel('realtime-publicaciones')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'publicaciones' }, (payload) => {
+        console.log('Cambio en publicaciones detectado:', payload);
+        cargarPublicaciones();
+    })
+    .subscribe((status, err) => {
+        console.log('Estado suscripción publicaciones:', status);
+        if (err) {
+            console.error('Error en suscripción publicaciones:', err);
+        }
+    });
+
+// Suscribirse a cambios en la tabla 'comentarios'
+_supabase
+    .channel('realtime-comentarios')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'comentarios' }, (payload) => {
+        console.log('Cambio en comentarios detectado:', payload);
+        cargarPublicaciones();
+    })
+    .subscribe((status, err) => {
+        console.log('Estado suscripción comentarios:', status);
+        if (err) {
+            console.error('Error en suscripción comentarios:', err);
+        }
+    });
