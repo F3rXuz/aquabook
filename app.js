@@ -1,7 +1,5 @@
-// --- CONFIGURACIÓN SUPABASE ---
-const SUBAPASE_URL = "https://urbxknlrzokdsbyhfirl.supabase.co";
-const SUPABASE_KEY = "sb_publishable_q7SZ54CZAxK8naqTf8gWJg_UViEPakb";
-const _supabase = supabase.createClient(SUBAPASE_URL, SUPABASE_KEY);
+// --- CONFIGURACIÓN API BACKEND ---
+const API_URL = "/api";
 
 // --- GESTIÓN DE SESIÓN ---
 window.logout = function () {
@@ -69,20 +67,26 @@ if (btnIngresar) {
         btnIngresar.textContent = 'Verificando...';
 
         try {
-            const { data: user, error: fetchError } = await _supabase
-                .from('afiliados')
-                .select('*')
-                .eq('legajo', legajo)
-                .maybeSingle();
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ legajo, password })
+            });
 
-            if (fetchError) throw fetchError;
-            if (!user) {
-                alert('❌ Error: El Legajo "' + legajo + '" no está registrado.\n\nPor favor, hacé clic en "Crear Cuenta" primero.');
-            } else if (user.password !== password) {
-                alert('❌ Error: La contraseña es incorrecta.');
-            } else {
-                hideLogin(user.nombre, user.legajo);
+            if (!response.ok) {
+                if (response.status === 404) {
+                    alert('❌ Error: El Legajo "' + legajo + '" no está registrado.\n\nPor favor, hacé clic en "Crear Cuenta" primero.');
+                } else if (response.status === 401) {
+                    alert('❌ Error: La contraseña es incorrecta.');
+                } else {
+                    const errData = await response.json();
+                    alert('❌ Error: ' + errData.error);
+                }
+                return;
             }
+
+            const user = await response.json();
+            hideLogin(user.nombre, user.legajo);
         } catch (err) {
             console.error("Error en login:", err);
             alert('Error de conexión: ' + err.message);
@@ -112,14 +116,20 @@ if (registerForm) {
         btn.textContent = 'Creando cuenta...';
 
         try {
-            const { data: existing } = await _supabase.from('afiliados').select('legajo').eq('legajo', legajo).maybeSingle();
-            if (existing) {
-                alert('Error: Ya existe una cuenta con este legajo.');
-            } else {
-                const { error: insertError } = await _supabase.from('afiliados').insert([{ nombre, legajo, password }]);
-                if (insertError) throw insertError;
-                hideLogin(nombre, legajo);
+            const response = await fetch(`${API_URL}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, legajo, password })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                alert('Error: ' + errData.error);
+                return;
             }
+
+            const data = await response.json();
+            hideLogin(data.nombre, data.legajo);
         } catch (err) {
             console.error(err);
             alert('Error al crear cuenta: ' + err.message);
@@ -138,17 +148,15 @@ const imagePreview = document.getElementById('imagePreview');
 
 async function cargarPublicaciones() {
     if (!postsList) return;
-    postsList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">⏳ Cargando muro...</p>';
 
     try {
-        // Ordenamos por last_activity para que los comentados suban
-        const { data: posts, error: postError } = await _supabase.from('publicaciones')
-            .select('*')
-            .order('last_activity', { ascending: false });
-        if (postError) throw postError;
+        const postsResponse = await fetch(`${API_URL}/posts`);
+        if (!postsResponse.ok) throw new Error('Error al cargar publicaciones');
+        const posts = await postsResponse.json();
 
-        const { data: allComments, error: commentError } = await _supabase.from('comentarios').select('*').order('created_at', { ascending: true });
-        if (commentError) throw commentError;
+        const commentsResponse = await fetch(`${API_URL}/comments`);
+        if (!commentsResponse.ok) throw new Error('Error al cargar comentarios');
+        const allComments = await commentsResponse.json();
 
         postsList.innerHTML = '';
         if (!posts || posts.length === 0) {
@@ -226,14 +234,15 @@ async function enviarComentario(postId) {
     btn.disabled = true;
 
     try {
-        // 1. Insertar el comentario
-        const { error: commentError } = await _supabase.from('comentarios').insert([{ post_id: postId, nombre, legajo, mensaje }]);
-        if (commentError) throw commentError;
-
-        // 2. Actualizar la última actividad del post para que suba arriba
-        await _supabase.from('publicaciones')
-            .update({ last_activity: new Date().toISOString() })
-            .eq('id', postId);
+        const response = await fetch(`${API_URL}/comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ post_id: postId, nombre, legajo, mensaje })
+        });
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || 'Error al comentar');
+        }
 
         input.value = '';
         cargarPublicaciones();
@@ -245,16 +254,21 @@ async function enviarComentario(postId) {
     }
 }
 
-
 async function reaccionar(id, campo, valorActual) {
     const reactionKey = `reacted_${id}_${campo}`;
     if (sessionStorage.getItem(reactionKey)) return;
 
     try {
-        const updates = {};
-        updates[campo] = (valorActual || 0) + 1;
+        const nuevoValor = (valorActual || 0) + 1;
         sessionStorage.setItem(reactionKey, 'true');
-        await _supabase.from('publicaciones').update(updates).eq('id', id);
+
+        const response = await fetch(`${API_URL}/react`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, campo, valor: nuevoValor })
+        });
+        if (!response.ok) throw new Error('Error al registrar reacción');
+
         cargarPublicaciones();
     } catch (e) { console.error(e); }
 }
@@ -262,11 +276,13 @@ async function reaccionar(id, campo, valorActual) {
 async function borrarPost(id) {
     if (!confirm('¿Seguro que quieres borrar esta publicación?')) return;
     try {
-        await _supabase.from('publicaciones').delete().eq('id', id);
+        const response = await fetch(`${API_URL}/posts?id=${id}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) throw new Error('Error al borrar publicación');
         cargarPublicaciones();
     } catch (e) { console.error(e); }
 }
-
 
 function redimensionarImagen(base64Str, maxWidth = 1024) {
     return new Promise((resolve) => {
@@ -332,8 +348,16 @@ if (postForm) {
         }
 
         try {
-            const { error } = await _supabase.from('publicaciones').insert([{ nombre, legajo, mensaje: txt.value.trim() || "", imagen_url: imagenBase64 }]);
-            if (error) throw error;
+            const response = await fetch(`${API_URL}/posts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, legajo, mensaje: txt.value.trim() || "", imagen_url: imagenBase64 })
+            });
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || 'Error al publicar');
+            }
+
             txt.value = '';
             postImageInput.value = '';
             imagePreview.innerHTML = '';
@@ -348,31 +372,11 @@ if (postForm) {
     };
 }
 
-// --- ESCUCHA EN TIEMPO REAL (SUPABASE REALTIME) ---
-// Suscribirse a cambios en la tabla 'publicaciones'
-_supabase
-    .channel('realtime-publicaciones')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'publicaciones' }, (payload) => {
-        console.log('Cambio en publicaciones detectado:', payload);
+// --- ACTUALIZACIÓN DE CONTENIDO (POLLING) ---
+// Como Neon/Serverless no mantiene WebSockets directos en frontend de forma nativa,
+// consultamos cambios cada 5 segundos para mantener el feed actualizado.
+setInterval(() => {
+    if (sessionStorage.getItem('userRegistered')) {
         cargarPublicaciones();
-    })
-    .subscribe((status, err) => {
-        console.log('Estado suscripción publicaciones:', status);
-        if (err) {
-            console.error('Error en suscripción publicaciones:', err);
-        }
-    });
-
-// Suscribirse a cambios en la tabla 'comentarios'
-_supabase
-    .channel('realtime-comentarios')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'comentarios' }, (payload) => {
-        console.log('Cambio en comentarios detectado:', payload);
-        cargarPublicaciones();
-    })
-    .subscribe((status, err) => {
-        console.log('Estado suscripción comentarios:', status);
-        if (err) {
-            console.error('Error en suscripción comentarios:', err);
-        }
-    });
+    }
+}, 5000);

@@ -1,0 +1,15 @@
+{
+  "name": "aquabook",
+  "version": "1.0.0",
+  "description": "Muro social de AquaBook con Neon",
+  "main": "app.js",
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.3"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.37.2"
+  }
+}
