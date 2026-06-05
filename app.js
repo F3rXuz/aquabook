@@ -375,8 +375,18 @@ if (postForm) {
 // --- ACTUALIZACIÓN DE CONTENIDO (POLLING) ---
 // Como Neon/Serverless no mantiene WebSockets directos en frontend de forma nativa,
 // consultamos cambios cada 5 segundos para mantener el feed actualizado.
+// Evitamos la recarga si el usuario está escribiendo para que no se le borre lo que tipea.
 setInterval(() => {
     if (sessionStorage.getItem('userRegistered')) {
-        cargarPublicaciones();
+        const activeEl = document.activeElement;
+        const estaEscribiendo = activeEl && (
+            activeEl.id === 'postText' || 
+            activeEl.classList.contains('comment-input')
+        );
+
+        if (!estaEscribiendo) {
+            cargarPublicaciones();
+        }
     }
 }, 5000);
+
